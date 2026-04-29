@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -36,14 +37,25 @@ func main() {
 
 		scanner := bufio.NewScanner(file)
 
+		errorCount := 0
+
 		for scanner.Scan() {
 			line := scanner.Text()
-			fmt.Println(line)
+
+			if strings.Contains(line, "ERROR") {
+				errorCount++
+			}
 		}
 
 		if err := scanner.Err(); err != nil {
 			fmt.Println("Error reading file:", err)
+			return
 		}
+
+		fmt.Println("AppSentinel Report")
+		fmt.Println("------------------")
+		fmt.Println("")
+		fmt.Println("Error found:", errorCount)
 
 		return
 	}
