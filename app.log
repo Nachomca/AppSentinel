@@ -1,5 +1,21 @@
 INFO Server started
 ERROR Database connection failed
 ERROR Database connection failed
+ERROR Database connection failed
+ERROR Database connection failed
+ERROR Database connection failed
+
+ERROR Timeout connecting to service
+ERROR Timeout connecting to service
+
+WARN Cache is slow
+WARN Cache is slow
+
 WARN Login failed for user admin
+WARN Login failed for user admin
+WARN Login failed for user admin
+WARN Login failed for user admin
+WARN Login failed for user admin
+WARN Login failed for user admin
+
 INFO Request processed

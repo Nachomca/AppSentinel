@@ -4,8 +4,49 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
+
+type Finding struct {
+	Message  string
+	Count    int
+	Severity string
+}
+
+func getSeverity(count int) string {
+	if count >= 10 {
+		return "CRITICAL"
+	}
+
+	if count >= 5 {
+		return "HIGH"
+	}
+
+	if count >= 2 {
+		return "MEDIUM"
+	}
+
+	return "LOW"
+}
+
+func mapToSortedSlice(m map[string]int) []Finding {
+	var findings []Finding
+
+	for msg, count := range m {
+		findings = append(findings, Finding{
+			Message:  msg,
+			Count:    count,
+			Severity: getSeverity(count),
+		})
+	}
+
+	sort.Slice(findings, func(i, j int) bool {
+		return findings[i].Count > findings[j].Count
+	})
+
+	return findings
+}
 
 func main() {
 	args := os.Args
@@ -77,18 +118,21 @@ func main() {
 		fmt.Println("------------------")
 
 		fmt.Println("\nCRITICAL")
-		for msg, count := range errorMap {
-			fmt.Printf("- %dx %s\n", count, msg)
+		errorFindings := mapToSortedSlice(errorMap)
+		for _, f := range errorFindings {
+			fmt.Printf("- [%s] %dx %s\n", f.Severity, f.Count, f.Message)
 		}
 
 		fmt.Println("\nWARNING")
-		for msg, count := range warningMap {
-			fmt.Printf("- %dx %s\n", count, msg)
+		warnFindings := mapToSortedSlice(warningMap)
+		for _, f := range warnFindings {
+			fmt.Printf("- [%s] %dx %s\n", f.Severity, f.Count, f.Message)
 		}
 
 		fmt.Println("\nSECURITY")
-		for msg, count := range securityMap {
-			fmt.Printf("- %dx %s\n\n", count, msg)
+		secFindings := mapToSortedSlice(securityMap)
+		for _, f := range secFindings {
+			fmt.Printf("- [%s] %dx %s\n\n", f.Severity, f.Count, f.Message)
 		}
 
 		return
