@@ -30,6 +30,17 @@ func getSeverity(count int) string {
 	return "LOW"
 }
 
+func isSecuritySignal(line string) bool {
+	return strings.Contains(line, "login failed") ||
+		strings.Contains(line, "invalid credentials") ||
+		strings.Contains(line, "authentication failed") ||
+		strings.Contains(line, "unauthorized") ||
+		strings.Contains(line, "forbidden") ||
+		strings.Contains(line, "access denied") ||
+		strings.Contains(line, "invalid token") ||
+		strings.Contains(line, "expired token")
+}
+
 func mapToSortedSlice(m map[string]int) []Finding {
 	var findings []Finding
 
@@ -90,7 +101,7 @@ func main() {
 			lowerLine := strings.ToLower(line)
 
 			// PRIORIDAD 1: SECURITY
-			if strings.Contains(lowerLine, "login failed") {
+			if isSecuritySignal(lowerLine) {
 				securityMap[line]++
 				continue
 			}

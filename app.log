@@ -17,5 +17,21 @@ WARN Login failed for user admin
 WARN Login failed for user admin
 WARN Login failed for user admin
 WARN Login failed for user admin
+WARN Login failed for user admin
+WARN Login failed for user admin
+
+ERROR Database connection failed
+
+WARN Invalid credentials for user test
+WARN Authentication failed for user root
+
+ERROR Timeout connecting to service
+
+WARN Unauthorized access to /admin
+WARN Forbidden request detected
+WARN Access denied for user guest
+
+WARN Invalid token provided
+WARN Expired token for session
 
 INFO Request processed
