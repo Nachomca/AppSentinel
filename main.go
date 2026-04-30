@@ -18,7 +18,10 @@ func main() {
 
 	command := args[1]
 
+	// Comprobamos que comando introduce
 	if command == "analyze" {
+
+		// Comprobamos que haya al menos 3 argumentos (comando completo)
 		if len(args) < 3 {
 			fmt.Println("Usage: appsentinel analyze <file>")
 			return
@@ -37,13 +40,30 @@ func main() {
 
 		scanner := bufio.NewScanner(file)
 
-		errorCount := 0
+		errorMap := make(map[string]int)
+		warningMap := make(map[string]int)
+		securityMap := make(map[string]int)
 
 		for scanner.Scan() {
 			line := scanner.Text()
+			lowerLine := strings.ToLower(line)
 
+			// PRIORIDAD 1: SECURITY
+			if strings.Contains(lowerLine, "login failed") {
+				securityMap[line]++
+				continue
+			}
+
+			// PRIORIDAD 2: ERROR
 			if strings.Contains(line, "ERROR") {
-				errorCount++
+				errorMap[line]++
+				continue
+			}
+
+			// PRIORIDAD 3: WARNING
+			if strings.Contains(line, "WARN") {
+				warningMap[line]++
+				continue
 			}
 		}
 
@@ -52,10 +72,24 @@ func main() {
 			return
 		}
 
-		fmt.Println("AppSentinel Report")
+		// OUTPUT
+		fmt.Println("\nAppSentinel Report")
 		fmt.Println("------------------")
-		fmt.Println("")
-		fmt.Println("Error found:", errorCount)
+
+		fmt.Println("\nCRITICAL")
+		for msg, count := range errorMap {
+			fmt.Printf("- %dx %s\n", count, msg)
+		}
+
+		fmt.Println("\nWARNING")
+		for msg, count := range warningMap {
+			fmt.Printf("- %dx %s\n", count, msg)
+		}
+
+		fmt.Println("\nSECURITY")
+		for msg, count := range securityMap {
+			fmt.Printf("- %dx %s\n\n", count, msg)
+		}
 
 		return
 	}
