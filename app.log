@@ -1,4 +1,14 @@
 INFO Server started
+ERROR DB failed
+ERROR DB failed
+ERROR DB failed
+ERROR timeout
+ERROR timeout
+ERROR timeout
+ERROR timeout
+ERROR timeout
+ERROR timeout
+ERROR timeout
 WARN Login failed for user admin
 WARN Login failed for user root
 WARN Login failed for user guest

@@ -20,6 +20,26 @@ type Incident struct {
 	Severity    string
 }
 
+func detectErrorSpike(errorFindings []Finding) []Incident {
+	totalErrors := 0
+
+	for _, f := range errorFindings {
+		totalErrors += f.Count
+	}
+
+	if totalErrors >= 10 {
+		return []Incident{
+			{
+				Title:       "Application error spike",
+				Description: fmt.Sprintf("%d total errors detected", totalErrors),
+				Severity:    "CRITICAL",
+			},
+		}
+	}
+
+	return nil
+}
+
 func detectErrorBurst(errorFindings []Finding) []Incident {
 	var incidents []Incident
 
@@ -38,20 +58,22 @@ func detectErrorBurst(errorFindings []Finding) []Incident {
 
 func detectAggregatedBruteForce(securityFindings []Finding) []Incident {
 	totalFailedLogins := 0
+	distinctFailedLoginMessages := 0
 
 	for _, f := range securityFindings {
 		lower := strings.ToLower(f.Message)
 
 		if strings.Contains(lower, "login failed") {
 			totalFailedLogins += f.Count
+			distinctFailedLoginMessages++
 		}
 	}
 
-	if totalFailedLogins >= 5 {
+	if totalFailedLogins >= 5 && distinctFailedLoginMessages >= 2 {
 		return []Incident{
 			{
 				Title:       "Aggregated brute force pattern",
-				Description: fmt.Sprintf("%d failed login attempts across multiple log entries", totalFailedLogins),
+				Description: fmt.Sprintf("%d failed login attempts across %d different log entries", totalFailedLogins, distinctFailedLoginMessages),
 				Severity:    "HIGH",
 			},
 		}
@@ -197,6 +219,7 @@ func main() {
 		incidents = append(incidents, detectErrorBurst(errorFindings)...)
 		incidents = append(incidents, detectBruteForce(secFindings)...)
 		incidents = append(incidents, detectAggregatedBruteForce(secFindings)...)
+		incidents = append(incidents, detectErrorSpike(errorFindings)...)
 
 		fmt.Println("\nAppSentinel Report")
 		fmt.Println("------------------")
