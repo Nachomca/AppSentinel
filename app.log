@@ -1,37 +1,7 @@
 INFO Server started
-ERROR Database connection failed
-ERROR Database connection failed
-ERROR Database connection failed
-ERROR Database connection failed
-ERROR Database connection failed
-
-ERROR Timeout connecting to service
-ERROR Timeout connecting to service
-
-WARN Cache is slow
-WARN Cache is slow
-
 WARN Login failed for user admin
-WARN Login failed for user admin
-WARN Login failed for user admin
-WARN Login failed for user admin
-WARN Login failed for user admin
-WARN Login failed for user admin
-WARN Login failed for user admin
-WARN Login failed for user admin
-
-ERROR Database connection failed
-
-WARN Invalid credentials for user test
-WARN Authentication failed for user root
-
-ERROR Timeout connecting to service
-
-WARN Unauthorized access to /admin
-WARN Forbidden request detected
-WARN Access denied for user guest
-
-WARN Invalid token provided
-WARN Expired token for session
-
+WARN Login failed for user root
+WARN Login failed for user guest
+WARN Login failed for user test
+WARN Login failed for user demo
 INFO Request processed

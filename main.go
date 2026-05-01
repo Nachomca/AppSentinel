@@ -36,6 +36,30 @@ func detectErrorBurst(errorFindings []Finding) []Incident {
 	return incidents
 }
 
+func detectAggregatedBruteForce(securityFindings []Finding) []Incident {
+	totalFailedLogins := 0
+
+	for _, f := range securityFindings {
+		lower := strings.ToLower(f.Message)
+
+		if strings.Contains(lower, "login failed") {
+			totalFailedLogins += f.Count
+		}
+	}
+
+	if totalFailedLogins >= 5 {
+		return []Incident{
+			{
+				Title:       "Aggregated brute force pattern",
+				Description: fmt.Sprintf("%d failed login attempts across multiple log entries", totalFailedLogins),
+				Severity:    "HIGH",
+			},
+		}
+	}
+
+	return nil
+}
+
 func detectBruteForce(securityFindings []Finding) []Incident {
 	var incidents []Incident
 
@@ -172,6 +196,7 @@ func main() {
 		incidents := []Incident{}
 		incidents = append(incidents, detectErrorBurst(errorFindings)...)
 		incidents = append(incidents, detectBruteForce(secFindings)...)
+		incidents = append(incidents, detectAggregatedBruteForce(secFindings)...)
 
 		fmt.Println("\nAppSentinel Report")
 		fmt.Println("------------------")
