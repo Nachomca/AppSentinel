@@ -136,6 +136,27 @@ func detectBruteForce(securityFindings []Finding) []Incident {
 	return incidents
 }
 
+func sortIncidentsBySeverity(incidents []Incident) {
+	sort.Slice(incidents, func(i, j int) bool {
+		return severityRank(incidents[i].Severity) > severityRank(incidents[j].Severity)
+	})
+}
+
+func severityRank(severity string) int {
+	switch severity {
+	case "CRITICAL":
+		return 4
+	case "HIGH":
+		return 3
+	case "MEDIUM":
+		return 2
+	case "LOW":
+		return 1
+	default:
+		return 0
+	}
+}
+
 func getSeverity(count int) string {
 	if count >= 10 {
 		return "CRITICAL"
@@ -258,6 +279,7 @@ func main() {
 		incidents = append(incidents, detectErrorSpike(errorFindings)...)
 		incidents = append(incidents, detectMixedRisk(errorFindings, secFindings)...)
 		incidents = deduplicateIncidents(incidents)
+		sortIncidentsBySeverity(incidents)
 
 		fmt.Println("\nAppSentinel Report")
 		fmt.Println("------------------")
