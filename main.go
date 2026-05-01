@@ -15,9 +15,10 @@ type Finding struct {
 }
 
 type Incident struct {
-	Title       string
-	Description string
-	Severity    string
+	Title          string
+	Description    string
+	Severity       string
+	Recommendation string
 }
 
 func deduplicateIncidents(incidents []Incident) []Incident {
@@ -40,9 +41,10 @@ func detectMixedRisk(errorFindings []Finding, securityFindings []Finding) []Inci
 	if len(errorFindings) > 0 && len(securityFindings) > 0 {
 		return []Incident{
 			{
-				Title:       "Multiple issue categories detected",
-				Description: "application errors and security signals were found together",
-				Severity:    "HIGH",
+				Title:          "Multiple issue categories detected",
+				Description:    "application errors and security signals were found together",
+				Severity:       "HIGH",
+				Recommendation: "Investigate both system errors and security logs for potential compromise",
 			},
 		}
 	}
@@ -60,9 +62,10 @@ func detectErrorSpike(errorFindings []Finding) []Incident {
 	if totalErrors >= 10 {
 		return []Incident{
 			{
-				Title:       "Application error spike",
-				Description: fmt.Sprintf("%d total errors detected", totalErrors),
-				Severity:    "CRITICAL",
+				Title:          "Application error spike",
+				Description:    fmt.Sprintf("%d total errors detected", totalErrors),
+				Severity:       "CRITICAL",
+				Recommendation: "Investigate system stability and check for crash loops",
 			},
 		}
 	}
@@ -76,9 +79,10 @@ func detectErrorBurst(errorFindings []Finding) []Incident {
 	for _, f := range errorFindings {
 		if f.Count >= 5 {
 			incidents = append(incidents, Incident{
-				Title:       "Repeated application error",
-				Description: fmt.Sprintf("%dx %s", f.Count, f.Message),
-				Severity:    "HIGH",
+				Title:          "Repeated application error",
+				Description:    fmt.Sprintf("%dx %s", f.Count, f.Message),
+				Severity:       "HIGH",
+				Recommendation: "Check application logs and investigate recurring errors",
 			})
 		}
 	}
@@ -102,9 +106,10 @@ func detectAggregatedBruteForce(securityFindings []Finding) []Incident {
 	if totalFailedLogins >= 5 && distinctFailedLoginMessages >= 2 {
 		return []Incident{
 			{
-				Title:       "Aggregated brute force pattern",
-				Description: fmt.Sprintf("%d failed login attempts across %d different log entries", totalFailedLogins, distinctFailedLoginMessages),
-				Severity:    "HIGH",
+				Title:          "Aggregated brute force pattern",
+				Description:    fmt.Sprintf("%d failed login attempts across %d different log entries", totalFailedLogins, distinctFailedLoginMessages),
+				Severity:       "HIGH",
+				Recommendation: "Monitor multiple user login attempts and consider IP blocking",
 			},
 		}
 	}
@@ -120,9 +125,10 @@ func detectBruteForce(securityFindings []Finding) []Incident {
 
 		if strings.Contains(lower, "login failed") && f.Count >= 5 {
 			incidents = append(incidents, Incident{
-				Title:       "Possible brute force attack",
-				Description: fmt.Sprintf("%dx %s", f.Count, f.Message),
-				Severity:    "HIGH",
+				Title:          "Possible brute force attack",
+				Description:    fmt.Sprintf("%dx %s", f.Count, f.Message),
+				Severity:       "HIGH",
+				Recommendation: "Enable rate limiting and review authentication logs",
 			})
 		}
 	}
@@ -276,7 +282,9 @@ func main() {
 			fmt.Println("- No incidents detected")
 		} else {
 			for _, incident := range incidents {
-				fmt.Printf("- [%s] %s: %s\n", incident.Severity, incident.Title, incident.Description)
+				fmt.Printf("- [%s] %s\n", incident.Severity, incident.Title)
+				fmt.Printf("  Description: %s\n", incident.Description)
+				fmt.Printf("  Recommendation: %s\n\n", incident.Recommendation)
 			}
 		}
 
