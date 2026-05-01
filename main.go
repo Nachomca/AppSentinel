@@ -20,6 +20,36 @@ type Incident struct {
 	Severity    string
 }
 
+func deduplicateIncidents(incidents []Incident) []Incident {
+	var result []Incident
+	seen := make(map[string]bool)
+
+	for _, inc := range incidents {
+		key := inc.Title
+
+		if !seen[key] {
+			result = append(result, inc)
+			seen[key] = true
+		}
+	}
+
+	return result
+}
+
+func detectMixedRisk(errorFindings []Finding, securityFindings []Finding) []Incident {
+	if len(errorFindings) > 0 && len(securityFindings) > 0 {
+		return []Incident{
+			{
+				Title:       "Multiple issue categories detected",
+				Description: "application errors and security signals were found together",
+				Severity:    "HIGH",
+			},
+		}
+	}
+
+	return nil
+}
+
 func detectErrorSpike(errorFindings []Finding) []Incident {
 	totalErrors := 0
 
@@ -220,6 +250,8 @@ func main() {
 		incidents = append(incidents, detectBruteForce(secFindings)...)
 		incidents = append(incidents, detectAggregatedBruteForce(secFindings)...)
 		incidents = append(incidents, detectErrorSpike(errorFindings)...)
+		incidents = append(incidents, detectMixedRisk(errorFindings, secFindings)...)
+		incidents = deduplicateIncidents(incidents)
 
 		fmt.Println("\nAppSentinel Report")
 		fmt.Println("------------------")
