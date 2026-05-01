@@ -14,6 +14,46 @@ type Finding struct {
 	Severity string
 }
 
+type Incident struct {
+	Title       string
+	Description string
+	Severity    string
+}
+
+func detectErrorBurst(errorFindings []Finding) []Incident {
+	var incidents []Incident
+
+	for _, f := range errorFindings {
+		if f.Count >= 5 {
+			incidents = append(incidents, Incident{
+				Title:       "Repeated application error",
+				Description: fmt.Sprintf("%dx %s", f.Count, f.Message),
+				Severity:    "HIGH",
+			})
+		}
+	}
+
+	return incidents
+}
+
+func detectBruteForce(securityFindings []Finding) []Incident {
+	var incidents []Incident
+
+	for _, f := range securityFindings {
+		lower := strings.ToLower(f.Message)
+
+		if strings.Contains(lower, "login failed") && f.Count >= 5 {
+			incidents = append(incidents, Incident{
+				Title:       "Possible brute force attack",
+				Description: fmt.Sprintf("%dx %s", f.Count, f.Message),
+				Severity:    "HIGH",
+			})
+		}
+	}
+
+	return incidents
+}
+
 func getSeverity(count int) string {
 	if count >= 10 {
 		return "CRITICAL"
@@ -125,25 +165,39 @@ func main() {
 		}
 
 		// OUTPUT
+		errorFindings := mapToSortedSlice(errorMap)
+		warnFindings := mapToSortedSlice(warningMap)
+		secFindings := mapToSortedSlice(securityMap)
+
+		incidents := []Incident{}
+		incidents = append(incidents, detectErrorBurst(errorFindings)...)
+		incidents = append(incidents, detectBruteForce(secFindings)...)
+
 		fmt.Println("\nAppSentinel Report")
 		fmt.Println("------------------")
 
 		fmt.Println("\nCRITICAL")
-		errorFindings := mapToSortedSlice(errorMap)
 		for _, f := range errorFindings {
 			fmt.Printf("- [%s] %dx %s\n", f.Severity, f.Count, f.Message)
 		}
 
 		fmt.Println("\nWARNING")
-		warnFindings := mapToSortedSlice(warningMap)
 		for _, f := range warnFindings {
 			fmt.Printf("- [%s] %dx %s\n", f.Severity, f.Count, f.Message)
 		}
 
 		fmt.Println("\nSECURITY")
-		secFindings := mapToSortedSlice(securityMap)
 		for _, f := range secFindings {
-			fmt.Printf("- [%s] %dx %s\n\n", f.Severity, f.Count, f.Message)
+			fmt.Printf("- [%s] %dx %s\n", f.Severity, f.Count, f.Message)
+		}
+
+		fmt.Println("\nINCIDENTS")
+		if len(incidents) == 0 {
+			fmt.Println("- No incidents detected")
+		} else {
+			for _, incident := range incidents {
+				fmt.Printf("- [%s] %s: %s\n", incident.Severity, incident.Title, incident.Description)
+			}
 		}
 
 		return
